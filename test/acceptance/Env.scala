@@ -22,7 +22,7 @@ import org.openqa.selenium.chrome.ChromeDriver
 import org.openqa.selenium.htmlunit.HtmlUnitDriver
 import org.openqa.selenium.remote.DesiredCapabilities
 import org.openqa.selenium.{HasCapabilities, WebDriver}
-import org.openqa.selenium.firefox.{FirefoxDriver, FirefoxProfile}
+import org.openqa.selenium.firefox.{FirefoxDriver, FirefoxOptions, FirefoxProfile}
 
 import scala.util.Try
 
@@ -31,9 +31,11 @@ trait Env {
   val webDriverConfig = System.getProperty("test.driver", "firefox").toLowerCase
   val driver = if (webDriverConfig == "firefox") {
     val driver: WebDriver with HasCapabilities = {
-      val profile = new FirefoxProfile
-      profile.setAcceptUntrustedCertificates(true)
-      new FirefoxDriver(profile)
+      val options = new FirefoxOptions
+      options.setAcceptInsecureCerts(true)
+      val firefoxDriver = new FirefoxDriver(options)
+      firefoxDriver.manage().window().maximize()
+      firefoxDriver
     }
     driver
   } else if (webDriverConfig == "chrome"){

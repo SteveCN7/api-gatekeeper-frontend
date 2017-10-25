@@ -102,8 +102,10 @@ lazy val acceptanceTestDeps: Seq[ModuleID] = Seq(
   "com.typesafe.play" %% "play-test" % PlayVersion.current % "acceptance",
   "uk.gov.hmrc" %% "hmrctest" % "2.3.0" % "acceptance",
   "com.github.tomakehurst" % "wiremock" % "1.58" % "acceptance",
-  "org.seleniumhq.selenium" % "selenium-java" % "2.53.1" % "acceptance",
+  "org.seleniumhq.selenium" % "selenium-java" % "3.6.0" % "acceptance",
+  "org.seleniumhq.selenium" % "selenium-firefox-driver" % "3.6.0" % "acceptance",
   "org.seleniumhq.selenium" % "selenium-htmlunit-driver" % "2.52.0" % "acceptance",
+  "com.google.guava" % "guava" % "23.0" % "acceptance",
   "org.mockito" % "mockito-all" % "1.10.19" % "acceptance",
   "org.scalacheck" %% "scalacheck" % "1.13.5" % "acceptance"
 ).map(
@@ -123,8 +125,10 @@ lazy val testDeps: Seq[ModuleID] = Seq(
   "com.typesafe.play" %% "play-test" % PlayVersion.current % "test",
   "uk.gov.hmrc" %% "hmrctest" % "2.3.0" % "test",
   "com.github.tomakehurst" % "wiremock" % "1.58" % "test",
-  "org.seleniumhq.selenium" % "selenium-java" % "2.53.1" % "test",
+  "org.seleniumhq.selenium" % "selenium-java" % "3.6.0" % "test",
+  "org.seleniumhq.selenium" % "selenium-firefox-driver" % "3.6.0" % "test",
   "org.seleniumhq.selenium" % "selenium-htmlunit-driver" % "2.52.0" % "test",
+  "com.google.guava" % "guava" % "23.0" % "acceptance",
   "org.mockito" % "mockito-all" % "1.10.19" % "test",
   "org.scalacheck" %% "scalacheck" % "1.13.5" % "test"
 ).map(
@@ -149,7 +153,8 @@ lazy val compile = Seq(
   "org.slf4j" % "log4j-over-slf4j" % slf4jVersion,
   "org.slf4j" % "jul-to-slf4j" % slf4jVersion,
   "ch.qos.logback" % "logback-classic" % logbackVersion,
-  "ch.qos.logback" % "logback-core" % logbackVersion
+  "ch.qos.logback" % "logback-core" % logbackVersion,
+  "com.google.guava" % "guava" % "23.0"
 ).map(
   _.excludeAll(
     ExclusionRule(organization = "commons-logging"),
