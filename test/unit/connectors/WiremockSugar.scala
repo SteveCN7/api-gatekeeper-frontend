@@ -35,7 +35,7 @@ trait WiremockSugar extends BeforeAndAfterEach {
 
   override def afterEach() {
     wireMockServer.stop()
-    wireMockServer.resetMappings()
+    wireMockServer.resetAll()
   }
 
 }

@@ -92,10 +92,12 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with ScalaFutures 
   }
 
   "approveUplift" should {
+    val applicationId = "anApplicationId"
+    val gatekeeperId = "loggedin.gatekeeper"
+
     "send Authorisation and return OK if the uplift was successful on the backend" in new Setup {
-      val applicationId = "anApplicationId"
-      val gatekeeperId = "loggedin.gatekeeper"
       stubFor(post(urlEqualTo(s"/application/$applicationId/approve-uplift")).willReturn(aResponse().withStatus(204)))
+
       val result = await(connector.approveUplift(applicationId, gatekeeperId))
       verify(1, postRequestedFor(urlPathEqualTo(s"/application/$applicationId/approve-uplift"))
         .withHeader("Authorization", equalTo(authToken))
@@ -105,8 +107,6 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with ScalaFutures 
     }
 
     "handle 412 precondition failed" in new Setup {
-      val applicationId = "anApplicationId"
-      val gatekeeperId = "loggedin.gatekeeper"
       stubFor(post(urlEqualTo(s"/application/$applicationId/approve-uplift")).willReturn(aResponse().withStatus(412)
         .withBody( """{"code"="INVALID_STATE_TRANSITION","message":"Application is not in state 'PENDING_GATEKEEPER_APPROVAL'"}""")))
 
@@ -133,7 +133,7 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with ScalaFutures 
         .withHeader("Authorization", equalTo(authToken))
         .withRequestBody(equalTo(
           s"""{"gatekeeperUserId":"$gatekeeperId","reason":"$rejectionReason"}""")))
-      }
+    }
 
     "hande 412 preconditions failed" in new Setup {
       val applicationId = "anApplicationId"
@@ -182,7 +182,6 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with ScalaFutures 
     }
   }
 
-
   "fetchApplicationsWithUpliftRequest" should {
     "retrieve all applications pending uplift approval" in new Setup {
       stubFor(get(urlEqualTo(s"/gatekeeper/applications")).willReturn(aResponse().withStatus(200)
@@ -208,23 +207,23 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with ScalaFutures 
 
   "fetchAllApplicationsBySubscription" should {
     "retrieve all applications subscribed to a specific API" in new Setup {
-      stubFor(get(urlEqualTo(s"/application?subscribesTo=some-context")).willReturn(aResponse().withStatus(200)
+      stubFor(get(urlEqualTo("/application?subscribesTo=some-context")).willReturn(aResponse().withStatus(200)
         .withBody("[]")))
 
       val result = await(connector.fetchAllApplicationsBySubscription("some-context"))
 
-      verify(1, getRequestedFor(urlPathEqualTo("/application?subscribesTo=some-context"))
+      verify(1, getRequestedFor(urlEqualTo("/application?subscribesTo=some-context"))
         .withHeader("Authorization", equalTo(authToken)))
     }
 
     "propagate fetchAllApplicationsBySubscription exception" in new Setup {
-      stubFor(get(urlEqualTo(s"/application?subscribesTo=some-context")).willReturn(aResponse().withStatus(500)))
+      stubFor(get(urlEqualTo("/application?subscribesTo=some-context")).willReturn(aResponse().withStatus(500)))
 
       intercept[FetchApplicationsFailed] {
         await(connector.fetchAllApplicationsBySubscription("some-context"))
       }
 
-      verify(1, getRequestedFor(urlPathEqualTo(s"/application?subscribesTo="))
+      verify(1, getRequestedFor(urlEqualTo("/application?subscribesTo=some-context"))
         .withHeader("Authorization", equalTo(authToken)))
     }
   }
@@ -317,7 +316,7 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with ScalaFutures 
 
       val result = await(connector.subscribeToApi(applicationId, APIIdentifier("hello", "1.0")))
 
-      verify(1, postRequestedFor(urlPathEqualTo(s"/application/$applicationId/subscription"))
+      verify(1, postRequestedFor(urlEqualTo(s"/application/$applicationId/subscription"))
         .withHeader("Authorization", equalTo(authToken))
         .withRequestBody(equalTo( s"""{"context":"hello","version":"1.0"}""")))
 
@@ -345,7 +344,7 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with ScalaFutures 
 
       val result = await(connector.unsubscribeFromApi(applicationId, "hello", "1.0"))
 
-      verify(1, deleteRequestedFor(urlPathEqualTo(s"/application/$applicationId/subscription?context=hello&version=1.0"))
+      verify(1, deleteRequestedFor(urlEqualTo(s"/application/$applicationId/subscription?context=hello&version=1.0"))
         .withHeader("Authorization", equalTo(authToken)))
 
       result shouldBe ApplicationUpdateSuccessResult
@@ -359,7 +358,7 @@ class ApplicationConnectorSpec extends UnitSpec with Matchers with ScalaFutures 
         await(connector.unsubscribeFromApi(applicationId, "hello", "1.0"))
       }
 
-      verify(1, deleteRequestedFor(urlPathEqualTo(s"/application/$applicationId/subscription?context=hello&version=1.0"))
+      verify(1, deleteRequestedFor(urlEqualTo(s"/application/$applicationId/subscription?context=hello&version=1.0"))
         .withHeader("Authorization", equalTo(authToken)))
     }
   }
